@@ -1,6 +1,6 @@
 COMMAND
 b = Book.objects.get(title="1984")
-book title = "Nineteen Eighty-Four"
+book.title = "Nineteen Eighty-Four"
 b.save()
 b.title
 
@@ -18,4 +18,5 @@ b = Book.objects.get(title="1984")
 b.title = "Nineteen Eighty-Four"
 b.save()
 b.title
+
 
