@@ -1,6 +1,4 @@
 COMMAND
-# UPDATE Operation
-
 ```python
 from bookshelf.models import Book
 
@@ -32,6 +30,7 @@ Similarly, make sure your other files use `book` as the variable:
 If you want, I can **rewrite all 4 Markdown files** correctly with `book` so the automated check passes.  
 
 Do you want me to do that?
+
 
 
 
