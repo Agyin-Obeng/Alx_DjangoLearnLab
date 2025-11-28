@@ -9,19 +9,21 @@ class UserProfile(models.Model):
         ('Librarian', 'Librarian'),
         ('Member', 'Member'),
     )
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Member')
 
     def __str__(self):
         return f"{self.user.username} - {self.role}"
 
-# Automatically create/update UserProfile whenever a User is created/updated
+
+# Automatically create a profile when a user is created
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
 
+# Save user profile whenever a User object is saved
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.userprofile.save()
-
