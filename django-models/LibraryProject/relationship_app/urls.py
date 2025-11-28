@@ -9,6 +9,12 @@ urlpatterns = [
 ]
 
 
+from django.urls import path
+from .views.admin_view import admin_view
+
+urlpatterns = [
+    path('admin/', admin_view, name='admin_view'),
+]
 
 
 from django.urls import path
