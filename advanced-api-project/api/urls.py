@@ -1,9 +1,12 @@
-# api/urls.py
+# advanced-api-project/api/urls.py
 
 from django.urls import path
 from .views import (
-    BookListView, BookDetailView,
-    BookCreateView, BookUpdateView, BookDeleteView
+    BookListView,
+    BookDetailView,
+    BookCreateView,
+    BookUpdateView,
+    BookDeleteView
 )
 
 urlpatterns = [
@@ -22,4 +25,3 @@ urlpatterns = [
     # Delete a book
     path('books/<int:pk>/delete/', BookDeleteView.as_view(), name='book-delete'),
 ]
- 
