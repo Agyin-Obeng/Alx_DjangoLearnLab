@@ -1,4 +1,5 @@
 # api/views.py
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework import generics, permissions
 from .models import Book
 from .serializers import BookSerializer
