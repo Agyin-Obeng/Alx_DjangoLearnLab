@@ -33,15 +33,13 @@ class BookAPITestCase(APITestCase):
         self.other_user = User.objects.create_user(username="other", password="pass1234")
 
         # Create sample books
-        # Titles/authors chosen to help test search/filtering
         Book.objects.create(title="Python Crash Course", author="Eric Matthes", publication_year=2016)
         Book.objects.create(title="Automate the Boring Stuff", author="Al Sweigart", publication_year=2015)
         Book.objects.create(title="Fluent Python", author="Luciano Ramalho", publication_year=2015)
 
-        # Reverse URLs (these names must match your api/urls.py)
+        # Reverse URLs
         self.list_url = reverse("book-list")
         self.create_url = reverse("book-create")
-        # detail/update/delete use pk in path so we'll reverse them in tests
 
     def _get_detail_urls(self):
         """Helper to get detail/update/delete urls for the first book."""
@@ -57,10 +55,9 @@ class BookAPITestCase(APITestCase):
     # -------------------------
     def test_list_books_allow_any(self):
         """Anyone (unauthenticated) can list books."""
-        resp = self.client.get(self.list_url)
-        assert resp.status_code == status.HTTP_200_OK
-        data = resp.json()
-        # Expect at least 3 books created in setUp
+        response = self.client.get(self.list_url)
+        assert response.status_code == status.HTTP_200_OK
+        data = response.data
         assert isinstance(data, list)
         assert len(data) == 3
 
@@ -68,15 +65,15 @@ class BookAPITestCase(APITestCase):
     # Create tests & permissions
     # -------------------------
     def test_create_book_requires_authentication(self):
-        """Unauthenticated users should not be able to create."""
+        """Unauthenticated users cannot create."""
         payload = {"title": "New Book", "author": "Jane Doe", "publication_year": 2021}
-        resp = self.client.post(self.create_url, payload, format="json")
-        assert resp.status_code in (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN)
+        response = self.client.post(self.create_url, payload, format="json")
+        assert response.status_code in (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN)
 
         # Authenticate and retry
         self.client.force_authenticate(user=self.user)
-        resp2 = self.client.post(self.create_url, payload, format="json")
-        assert resp2.status_code == status.HTTP_201_CREATED
+        response = self.client.post(self.create_url, payload, format="json")
+        assert response.status_code == status.HTTP_201_CREATED
         created = Book.objects.filter(title="New Book").first()
         assert created is not None
         assert created.author == "Jane Doe"
@@ -88,18 +85,16 @@ class BookAPITestCase(APITestCase):
     def test_update_book_requires_authentication(self):
         urls = self._get_detail_urls()
         update_url = urls["update"]
-
         payload = {"title": "Python Crash Course (2nd Ed)"}
 
         # Unauthenticated attempt
-        resp = self.client.patch(update_url, payload, format="json")
-        assert resp.status_code in (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN)
+        response = self.client.patch(update_url, payload, format="json")
+        assert response.status_code in (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN)
 
         # Authenticated attempt
         self.client.force_authenticate(user=self.user)
-        resp2 = self.client.patch(update_url, payload, format="json")
-        assert resp2.status_code == status.HTTP_200_OK
-        # Verify update persisted
+        response = self.client.patch(update_url, payload, format="json")
+        assert response.status_code == status.HTTP_200_OK
         first = Book.objects.get(pk=Book.objects.first().pk)
         assert "Crash Course (2nd Ed)" in first.title
 
@@ -111,41 +106,38 @@ class BookAPITestCase(APITestCase):
         delete_url = urls["delete"]
 
         # Unauthenticated attempt
-        resp = self.client.delete(delete_url)
-        assert resp.status_code in (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN)
+        response = self.client.delete(delete_url)
+        assert response.status_code in (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN)
 
         # Authenticated attempt
         count_before = Book.objects.count()
         self.client.force_authenticate(user=self.user)
-        resp2 = self.client.delete(delete_url)
-        # DestroyAPIView usually returns 204 NO CONTENT
-        assert resp2.status_code in (status.HTTP_204_NO_CONTENT, status.HTTP_200_OK)
+        response = self.client.delete(delete_url)
+        assert response.status_code in (status.HTTP_204_NO_CONTENT, status.HTTP_200_OK)
         assert Book.objects.count() == count_before - 1
 
     # -------------------------
     # Filtering tests
     # -------------------------
     def test_filter_by_author(self):
-        resp = self.client.get(self.list_url, {"author": "Al Sweigart"})
-        assert resp.status_code == status.HTTP_200_OK
-        data = resp.json()
-        # Only Automate the Boring Stuff matches
+        response = self.client.get(self.list_url, {"author": "Al Sweigart"})
+        assert response.status_code == status.HTTP_200_OK
+        data = response.data
         assert len(data) == 1
         assert data[0]["author"] == "Al Sweigart"
 
     def test_filter_by_publication_year(self):
-        resp = self.client.get(self.list_url, {"publication_year": 2015})
-        assert resp.status_code == status.HTTP_200_OK
-        data = resp.json()
-        # Two books with publication_year 2015 in setUp
+        response = self.client.get(self.list_url, {"publication_year": 2015})
+        assert response.status_code == status.HTTP_200_OK
+        data = response.data
         assert len(data) == 2
         years = {item["publication_year"] for item in data}
         assert years == {2015}
 
     def test_filter_by_title_exact(self):
-        resp = self.client.get(self.list_url, {"title": "Fluent Python"})
-        assert resp.status_code == status.HTTP_200_OK
-        data = resp.json()
+        response = self.client.get(self.list_url, {"title": "Fluent Python"})
+        assert response.status_code == status.HTTP_200_OK
+        data = response.data
         assert len(data) == 1
         assert data[0]["title"] == "Fluent Python"
 
@@ -153,10 +145,9 @@ class BookAPITestCase(APITestCase):
     # Search tests
     # -------------------------
     def test_search_title_or_author(self):
-        # search for "python" should hit Python Crash Course and Fluent Python
-        resp = self.client.get(self.list_url, {"search": "python"})
-        assert resp.status_code == status.HTTP_200_OK
-        data = resp.json()
+        response = self.client.get(self.list_url, {"search": "python"})
+        assert response.status_code == status.HTTP_200_OK
+        data = response.data
         found_titles = {item["title"] for item in data}
         assert "Python Crash Course" in found_titles
         assert "Fluent Python" in found_titles
@@ -165,17 +156,15 @@ class BookAPITestCase(APITestCase):
     # Ordering tests
     # -------------------------
     def test_ordering_by_publication_year_desc(self):
-        # ordering=-publication_year should return newest first
-        resp = self.client.get(self.list_url, {"ordering": "-publication_year"})
-        assert resp.status_code == status.HTTP_200_OK
-        data = resp.json()
+        response = self.client.get(self.list_url, {"ordering": "-publication_year"})
+        assert response.status_code == status.HTTP_200_OK
+        data = response.data
         years = [item["publication_year"] for item in data]
-        # Ensure the list is sorted descending
         assert years == sorted(years, reverse=True)
 
     def test_ordering_by_title_asc(self):
-        resp = self.client.get(self.list_url, {"ordering": "title"})
-        assert resp.status_code == status.HTTP_200_OK
-        data = resp.json()
+        response = self.client.get(self.list_url, {"ordering": "title"})
+        assert response.status_code == status.HTTP_200_OK
+        data = response.data
         titles = [item["title"] for item in data]
         assert titles == sorted(titles)
