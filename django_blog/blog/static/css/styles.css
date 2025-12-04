@@ -1,0 +1,86 @@
+/* Basic reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Color & layout variables */
+:root {
+    --primary-bg: #333;
+    --primary-text: #fff;
+    --body-bg: #f9f9f9;
+    --text-color: #333;
+    --max-width: 1100px;
+    --transition-speed: 0.3s;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--body-bg);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Header */
+header {
+    background-color: var(--primary-bg);
+    padding: 15px 0;
+    text-align: center;
+}
+
+header nav ul {
+    list-style-type: none;
+}
+
+header nav ul li {
+    display: inline-block;
+    margin: 0 15px;
+}
+
+header nav ul li a {
+    color: var(--primary-text);
+    text-decoration: none;
+    font-size: 18px;
+    transition: opacity var(--transition-speed);
+}
+
+header nav ul li a:hover {
+    opacity: 0.7;
+}
+
+/* Content Wrapper */
+.content {
+    margin: 20px auto;
+    max-width: var(--max-width);
+    padding: 0 15px;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    margin-top: 50px;
+    padding: 15px;
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
+}
+.post-snippet {
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+}
+
+.post-snippet h3 a {
+    text-decoration: none;
+    color: #333;
+}
+
+.post-snippet h3 a:hover {
+    color: #007BFF;
+}
+
+.post-snippet p {
+    color: #555;
+}

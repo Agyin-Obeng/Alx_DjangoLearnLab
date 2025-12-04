@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Django Blog{% endblock %}
+
+{% block content %}
+<h1>Welcome to the Django Blog</h1>
+
+<p>Read the latest posts from our authors.</p>
+
+<hr>
+
+{% for post in posts %}
+    <h2>{{ post.title }}</h2>
+    <p>{{ post.content|truncatewords:20 }}</p>
+    <small>Posted on {{ post.created_at }}</small>
+    <hr>
+{% empty %}
+    <p>No posts available.</p>
+{% endfor %}
+
+{% endblock %}
