@@ -53,3 +53,10 @@ urlpatterns = [
     # Add this line for creating a new comment
     path('post/<int:pk>/comments/new/', views.add_comment, name='add_comment'),
 ]
+
+from .views import PostByTagListView
+
+urlpatterns = [
+    # other paths...
+    path('tag/<str:tag_name>/', PostByTagListView.as_view(), name='posts_by_tag'),
+]
