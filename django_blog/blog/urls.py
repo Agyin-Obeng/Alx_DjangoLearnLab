@@ -41,3 +41,15 @@ urlpatterns = [
     path('search/', views.search_posts, name='search_posts'),
     path('tags/<slug:tag_slug>/', views.posts_by_tag, name='posts_by_tag'),  # For tag filter view
 ]
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    # Existing paths
+    path('', views.PostListView.as_view(), name='post_list'),
+    path('post/<int:pk>/', views.PostDetailView.as_view(), name='post-detail'),
+    
+    # Add this line for creating a new comment
+    path('post/<int:pk>/comments/new/', views.add_comment, name='add_comment'),
+]
