@@ -21,3 +21,11 @@ urlpatterns = [
     path('', include(router.urls)),
     path('feed/', feed, name='feed'),  # 👈 ADD THIS
 ]
+
+from django.urls import path
+from .views import feed
+
+urlpatterns = [
+    path('feed/', feed, name='user-feed'),
+]
+

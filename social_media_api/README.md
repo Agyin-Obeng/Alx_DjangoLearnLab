@@ -67,3 +67,21 @@ Explanation of Flow: 1. Registration (/api/accounts/register/):
 
         5. Test API:
         Test endpoints via Postman, Insomnia, or curl.
+
+
+        ## User Follow & Feed Functionality
+
+### Follow a User
+
+POST /api/accounts/follow/<user_id>/
+Headers:
+Authorization: Token <token>
+
+### Unfollow a User
+
+POST /api/accounts/unfollow/<user_id>/
+
+### User Feed
+
+GET /api/posts/feed/
+Returns posts from users the authenticated user follows, ordered by newest first.
