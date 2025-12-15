@@ -19,3 +19,10 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ['id', 'post', 'author', 'content', 'created_at', 'updated_at']
         read_only_fields = ['author', 'created_at', 'updated_at']
+
+from .models import Like
+
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = "__all__"

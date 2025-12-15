@@ -85,3 +85,9 @@ POST /api/accounts/unfollow/<user_id>/
 
 GET /api/posts/feed/
 Returns posts from users the authenticated user follows, ordered by newest first.
+
+POST /posts/<id>/like/
+Likes a post and creates a notification for the post author.
+
+GET /notifications/
+Returns a list of notifications ordered by most recent.
