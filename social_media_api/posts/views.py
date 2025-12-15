@@ -11,6 +11,8 @@ from django.shortcuts import get_object_or_404
 from .models import Post, Like
 from notifications.models import Notification
 
+from rest_framework import status, generics
+
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().order_by("-created_at")
@@ -37,10 +39,10 @@ def feed(request):
     return Response(serializer.data)
 
 
-@api_view(["POST"])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def like_post(request, pk):
-    post = get_object_or_404(Post, pk=pk)
+    post = generics.get_object_or_404(Post, pk=pk)
 
     like, created = Like.objects.get_or_create(
         user=request.user,
@@ -48,7 +50,10 @@ def like_post(request, pk):
     )
 
     if not created:
-        return Response({"detail": "Post already liked"}, status=400)
+        return Response(
+            {"detail": "Post already liked."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     if post.author != request.user:
         Notification.objects.create(
@@ -58,17 +63,28 @@ def like_post(request, pk):
             target=post
         )
 
-    return Response({"detail": "Post liked"})
+    return Response(
+        {"detail": "Post liked successfully."},
+        status=status.HTTP_201_CREATED
+    )
 
 
-@api_view(["POST"])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def unlike_post(request, pk):
-    post = get_object_or_404(Post, pk=pk)
+    post = generics.get_object_or_404(Post, pk=pk)
 
-    Like.objects.filter(
-        user=request.user,
-        post=post
-    ).delete()
+    try:
+        like = Like.objects.get(user=request.user, post=post)
+        like.delete()
+        return Response(
+            {"detail": "Post unliked successfully."},
+            status=status.HTTP_200_OK
+        )
+    except Like.DoesNotExist:
+        return Response(
+            {"detail": "You have not liked this post."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
-    return Response({"detail": "Post unliked"})
+
